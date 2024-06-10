@@ -1,0 +1,10 @@
+{#nécessaire pour l'héritage#}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h2>Home :)</h2>
+{% endblock %}
+
+{# appel de l'élément parent auquel on ajoute un élément #}
+{% block title %} {{ parent() }} * Home {% endblock %}
+
