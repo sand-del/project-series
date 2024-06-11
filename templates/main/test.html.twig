@@ -1,39 +1,49 @@
 {% extends 'base.html.twig' %}
 {% block body %}
-<h1>Test !</h1>
-{# Création de variable #}
-{% set name = "Sand" %}
+    <h1>Test !</h1>
+    {# Création de variable #}
+    {% set name = "Sand" %}
 
-<h2>Hello {{ name }} !</h2>
+    <h2>Hello {{ name }} !</h2>
 
-{# Création d'un tableau #}
-{% set colors = ['blue', 'pink', 'purple', 'red'] %}
+    {# Création d'un tableau #}
+    {% set colors = ['blue', 'pink', 'purple', 'red'] %}
 
-{# boucle foreach #}
-{% for color in colors %}
-    <div style="background-color: {{ color }}">{{ color }} {{ loop.index }}</div>
-    {% if loop.first %}
-        <p>Premier passage</p>
-    {% endif %}
-{% endfor %}
+    {# boucle foreach #}
+    {% for color in colors %}
+        <div style="background-color: {{ color }}">{{ color }} {{ loop.index }}</div>
+        {% if loop.first %}
+            <p>Premier passage</p>
+        {% endif %}
+    {% endfor %}
 
-{# utilisation des objets #}
-{% set book = {
-    title : "Dune",
-    author : "Frank Herbert",
-    year : 1965
-} %}
-<p>{{ book.title }} écrit par {{ book.author }} en {{ book.year }}.</p>
+    {# utilisation des objets #}
+    {% set book = {
+        title : "Dune",
+        author : "Frank Herbert",
+        year : 1965
+    } %}
+    <p>{{ book.title }} écrit par {{ book.author }} en {{ book.year }}.</p>
 
-{# boucle sur clé/valeur #}
-{% for key, value in book %}
-    <div>{{ key }} : {{ value }}</div>
-{% endfor %}
+    {# boucle sur clé/valeur #}
+    {% for key, value in book %}
+        <div>{{ key }} : {{ value }}</div>
+    {% endfor %}
 
-{# Quelques filtres #}
-<div>Hello {{ name | upper }}</div>
-<div>{{ colors | join('*') }}</div>
-<div>{{ "now"| date('d/m/Y') }}</div>
+    {# Quelques filtres #}
+    <div>Hello {{ name | upper }}</div>
+    <div>{{ colors | join('*') }}</div>
+    <div>{{ "now"| date('d/m/Y') }}</div>
+
+    <div>
+        <p>Titre de la série : {{ got.title }} | {{ got['year'] }}</p>
+        <p>Titre de la série : {{ boys['title'] }} | {{ boys.year }}</p>
+    </div>
+    <div>{{ username }}</div>
+    <div>{{ username | raw }}</div>
+    <div>{{ username | striptags }}</div>
 {% endblock %}
 
 {% block title %} {{ parent() }} * Test {% endblock %}
+
+
