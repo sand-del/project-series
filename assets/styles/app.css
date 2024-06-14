@@ -122,6 +122,10 @@ textarea{
     height: 100px;
 }
 
+.error{
+    color:firebrick;
+}
+
 /*************************** Module 6 Flash *******************************/
 
 .flash {
