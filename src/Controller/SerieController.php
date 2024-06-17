@@ -7,6 +7,7 @@ use App\Form\SerieType;
 use App\Repository\SerieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -36,13 +37,22 @@ class SerieController extends AbstractController
         //création du formulaire associé à l'instance de serie
         $serieForm = $this->createForm(SerieType::class, $serie);
 
-        dump($serie);
-        dump($request);
         //extrait des informations de la requête http
         $serieForm->handleRequest($request);
 
         if($serieForm->isSubmitted() && $serieForm->isValid()){
-            dump($serie);
+            //permet d'aider l'IDE en "typant" le $file, ce qui nous permet d'avoir accès à l'autocompletion
+            /**
+             * @var UploadedFile $file
+             */
+            //récupération du fichier de type UploadedFile
+            $file = $serieForm->get('poster')->getData();
+            //création de son nom
+            $newFilename = str_replace(' ', '', $serie->getName()) . '-' . uniqid() . '.' . $file->guessExtension();
+            //sauvegarde dans le bon répertoire en le renommant
+            $file->move($this->getParameter('serie_poster_directory'), $newFilename);
+            //setter le nouveau nom dans l'objet
+            $serie->setPoster($newFilename);
             $entityManager->persist($serie);
             $entityManager->flush();
 

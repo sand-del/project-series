@@ -6,10 +6,12 @@ use App\Entity\Serie;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Image;
 
 class SerieType extends AbstractType
 {
@@ -50,7 +52,19 @@ class SerieType extends AbstractType
                 'widget' => 'single_text',
             ])
             ->add('backdrop')
-            ->add('poster')
+            ->add('poster', FileType::class, [
+                //on demande de ne pas mapper le form avec l'entité car sur l'entité c'est un string et ici on cherche à enregistrer un fichier
+                'mapped' => false,
+                'constraints' => [
+                    new Image(
+                        [
+                            'maxSize' => '10m',
+                            'mimeTypesMessage' => 'Image format not allowed',
+                            'maxSizeMessage' => 'The file is too large'
+                        ]
+                    )
+                ]
+            ])
             ->add('tmdbId');
     }
 
