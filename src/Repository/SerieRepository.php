@@ -16,7 +16,7 @@ class SerieRepository extends ServiceEntityRepository
         parent::__construct($registry, Serie::class);
     }
 
-    public function findBestSeries()
+    public function findBestSeries(int $page)
     {
 //        //en DQL, on utilise les noms de nos attributs et non les noms de nos colonnes (même si ceux ci peuvent être identique)
 //        $dql = "SELECT s FROM App\Entity\Serie AS s
@@ -31,14 +31,21 @@ class SerieRepository extends ServiceEntityRepository
 //        //retourne les résultats de la requête
 //        return $query->getResult();
 
+        //page = 1; 0 -> 19
+        //page = 2; 20 -> 39
+        $limit = Serie::SERIES_PER_PAGE;
+        $offset = ($page - 1) * $limit;
+
         //La même requête en QueryBuilder
         $queryBuilder = $this->createQueryBuilder('s');
-        $queryBuilder->andWhere("s.popularity > 200")
-                     ->addOrderBy('s.vote', 'DESC');
+
+        $queryBuilder->addOrderBy('s.popularity', 'DESC');
+
         //pareil qu'en DQL
         $query = $queryBuilder->getQuery();
         //set de la limite
-        $query->setMaxResults(10);
+        $query->setMaxResults($limit);
+        $query->setFirstResult($offset);
         //retourne le résultat de la requête
         return $query->getResult();
 

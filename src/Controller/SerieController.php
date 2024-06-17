@@ -16,15 +16,30 @@ use function Symfony\Component\String\s;
 #[Route('/series', name: 'series_')]
 class SerieController extends AbstractController
 {
-    #[Route('', name: 'list')]
-    public function list(SerieRepository $serieRepository): Response
+    #[Route('/{page}', name: 'list', requirements: ['page' => '\d+'])]
+    public function list(SerieRepository $serieRepository, int $page = 1): Response
     {
-        $series = $serieRepository->findAll();
+        //gestion du cas ou le user essayer d'accéder à la page 0
+        if ($page < 1) {
+            $page = 1;
+        }
+
+        $nbSeriesMax = $serieRepository->count([]);
+        $maxPages = ceil($nbSeriesMax / Serie::SERIES_PER_PAGE);
+
+        //gestion du cas ou le user essayer d'accéder à une page suppérieur à la page maxi via l'url
+        if($page > $maxPages) {
+            $page = $maxPages;
+        }
+
+//        $series = $serieRepository->findAll();
 //        $series = $serieRepository->findBy([], ["popularity" => "DESC"], 50, 0);
-//        $series = $serieRepository->findBestSeries();
+        $series = $serieRepository->findBestSeries($page);
         dump($series);
         return $this->render('series/list.html.twig', [
-                'series' => $series
+                'series' => $series,
+                'currentPage' => $page,
+                'maxPages' => $maxPages,
             ]
         );
     }
@@ -66,7 +81,7 @@ class SerieController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'detail', requirements: ['id' => '\d+'])]
+    #[Route('/detail/{id}', name: 'detail', requirements: ['id' => '\d+'])]
     public function detail(SerieRepository $serieRepository, int $id): Response
     {
         $serie = $serieRepository->find($id);
@@ -74,6 +89,8 @@ class SerieController extends AbstractController
         if(!$serie){
             throw $this->createNotFoundException("Oops ! Series not found for id ".$id);
         }
+
+        dump($serie);
 
         return $this->render('series/detail.html.twig', [
             'serie' => $serie]);
