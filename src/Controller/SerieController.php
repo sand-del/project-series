@@ -18,9 +18,9 @@ class SerieController extends AbstractController
     #[Route('', name: 'list')]
     public function list(SerieRepository $serieRepository): Response
     {
-//        $series = $serieRepository->findAll();
+        $series = $serieRepository->findAll();
 //        $series = $serieRepository->findBy([], ["popularity" => "DESC"], 50, 0);
-        $series = $serieRepository->findBestSeries();
+//        $series = $serieRepository->findBestSeries();
         dump($series);
         return $this->render('series/list.html.twig', [
                 'series' => $series
@@ -31,36 +31,6 @@ class SerieController extends AbstractController
     #[Route('/create', name: 'create')]
     public function create(EntityManagerInterface $entityManager, Request $request): Response
     {
-//        $serie = new Serie();
-//        $serie
-//            ->setName('House of dragons')
-//            ->setBackdrop('backdrop.png')
-//            ->setDateCreated(new \DateTime())
-//            ->setGenres('Fantasy')
-//            ->setFirstAirDate(new \DateTime('-2 year'))
-//            ->setLastAirDate(new \DateTime('-1 year'))
-//            ->setPopularity(800.00)
-//            ->setPoster('poster.png')
-//            ->setStatus('returning')
-//            ->setTmdbId(12345)
-//            ->setVote(8);
-//
-//        dump($serie);
-//        //mets en file d'attente avant enregistrement
-//        $entityManager->persist($serie);
-//        //j'éxécute la/les requêtes
-//        $entityManager->flush();
-//        dump($serie);
-//
-//        $serie->setName('Pokemon XYZ');
-//        $entityManager->persist($serie);
-//        $entityManager->flush();
-//
-//        dump($serie);
-//
-//        $entityManager->remove($serie);
-//        $entityManager->flush();
-
         //création d'une instance de l'entité
         $serie = new Serie();
         //création du formulaire associé à l'instance de serie
@@ -97,5 +67,53 @@ class SerieController extends AbstractController
 
         return $this->render('series/detail.html.twig', [
             'serie' => $serie]);
+    }
+
+    #[Route('/update/{id}', name: 'update')]
+    public function update(EntityManagerInterface $entityManager, Request $request, SerieRepository $serieRepository, int $id): Response
+    {
+        $serie = $serieRepository->find($id);
+
+        if(!$serie){
+            throw $this->createNotFoundException("Oops ! Series not found for id ".$id);
+        }
+
+        $serieForm = $this->createForm(SerieType::class, $serie);
+        $serieForm->handleRequest($request);
+
+        if($serieForm->isSubmitted() && $serieForm->isValid()){
+
+            $serie->setDateModified(new \DateTime());
+
+            $entityManager->persist($serie);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Series updated successfully!');
+            return $this->redirectToRoute('series_detail', ['id' => $id]);
+        }
+
+        return $this->render('series/update.html.twig', [
+            'serieForm' => $serieForm
+        ]);
+
+    }
+
+    #[Route('/delete/{id}', name: 'delete')]
+    public function delete(EntityManagerInterface $entityManager, SerieRepository $serieRepository, int $id): Response
+    {
+        //récupération de l'instance de notre objet
+        $serie = $serieRepository->find($id);
+
+        if(!$serie){
+            throw $this->createNotFoundException("Oops ! Series not found for id ".$id);
+        }
+
+        //possibilité de faire un try / catch pour s'assurer de la suppression
+        $entityManager->remove($serie);
+        $entityManager->flush();
+        $this->addFlash('success', 'Series deleted successfully!');
+
+        return $this->redirectToRoute('series_list');
+
     }
 }
