@@ -22,13 +22,13 @@ class SeasonType extends AbstractType
             ->add('overview')
             ->add('poster')
             ->add('tmdbId')
-            ->add('serie', EntityType::class, [
-                'class' => Serie::class,
-                'choice_label' => 'name',
-                //fonction anonyme qui permet d'ordonner notre select de serie par ordre alphabétique
-                'query_builder' => function (SerieRepository $serieRepository) {
-                    return $serieRepository->createQueryBuilder('s')->orderBy('s.name', 'ASC');
-                }
+                ->add('serie', EntityType::class, [
+                    'class' => Serie::class,
+                    'choice_label' => 'name',
+                    //fonction anonyme qui permet d'ordonner notre select de serie par ordre alphabétique
+                    'query_builder' => function (SerieRepository $serieRepository) {
+                        return $serieRepository->createQueryBuilder('s')->orderBy('s.name', 'ASC');
+                    }
             ]);
     }
 
