@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Serie;
 use App\Form\SerieType;
 use App\Repository\SerieRepository;
+use App\Utils\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -47,7 +48,7 @@ class SerieController extends AbstractController
 
     #[Route('/create', name: 'create')]
     #[IsGranted('ROLE_USER')]
-    public function create(EntityManagerInterface $entityManager, Request $request): Response
+    public function create(EntityManagerInterface $entityManager, Request $request, FileUploader $fileUploader): Response
     {
         //création d'une instance de l'entité
         $serie = new Serie();
@@ -64,12 +65,10 @@ class SerieController extends AbstractController
              */
             //récupération du fichier de type UploadedFile
             $file = $serieForm->get('poster')->getData();
-            //création de son nom
-            $newFilename = str_replace(' ', '', $serie->getName()) . '-' . uniqid() . '.' . $file->guessExtension();
-            //sauvegarde dans le bon répertoire en le renommant
-            $file->move($this->getParameter('serie_poster_directory'), $newFilename);
+            $newFileName = $fileUploader->upload($file, $this->getParameter('serie_poster_directory'), $serie->getName());
+
             //setter le nouveau nom dans l'objet
-            $serie->setPoster($newFilename);
+            $serie->setPoster($newFileName);
             $entityManager->persist($serie);
             $entityManager->flush();
 
