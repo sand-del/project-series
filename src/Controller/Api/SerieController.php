@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/series', name: 'api_series_')]
 class SerieController extends AbstractController
@@ -39,7 +40,12 @@ class SerieController extends AbstractController
     }
 
     #[Route('', name: 'add', methods: ['POST'])]
-    public function add(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
+    public function add(
+        Request $request,
+        SerializerInterface $serializer,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator
+    ): Response
     {
         //Extrait le body de la requête
         $data = $request->getContent();
@@ -51,6 +57,17 @@ class SerieController extends AbstractController
 //        $data = json_decode($data, true);
 
         $serie = $serializer->deserialize($data, Serie::class, 'json');
+
+        $errors = $validator->validate($serie);
+        if(count($errors) > 0){
+            //méthode une :
+//            $errorsJson = $serializer->serialize($errors, 'json');
+//            return new JsonResponse($errorsJson, Response::HTTP_BAD_REQUEST);
+            //méthode 2 :
+            return $this->json($errors, Response::HTTP_BAD_REQUEST);
+
+        }
+
         $serie->setDateCreated(new \DateTime());
 
         $entityManager->persist($serie);
