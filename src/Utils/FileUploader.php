@@ -6,7 +6,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileUploader
 {
-
     public function upload(UploadedFile $file, string $directory, string $name = ""): string
     {
         //création de son nom, ternaire : est ce qu'il y un name ? si oui met le name, sinon met rien
