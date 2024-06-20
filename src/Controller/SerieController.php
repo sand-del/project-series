@@ -37,7 +37,7 @@ class SerieController extends AbstractController
 //        $series = $serieRepository->findAll();
 //        $series = $serieRepository->findBy([], ["popularity" => "DESC"], 50, 0);
         $series = $serieRepository->findBestSeries($page);
-        dump($series);
+//        dump($series);
         return $this->render('series/list.html.twig', [
                 'series' => $series,
                 'currentPage' => $page,
@@ -90,11 +90,13 @@ class SerieController extends AbstractController
         if(!$serie){
             throw $this->createNotFoundException("Oops ! Series not found for id ".$id);
         }
-
-        dump($serie);
+        //permet de faire des requêtes GET facilement
+        $json = file_get_contents('https://jsonplaceholder.typicode.com/comments');
+        $comments = json_decode($json, true);
 
         return $this->render('series/detail.html.twig', [
-            'serie' => $serie]);
+            'serie' => $serie,
+            'comments' => $comments]);
     }
 
     #[Route('/update/{id}', name: 'update')]

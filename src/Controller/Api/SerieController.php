@@ -41,10 +41,10 @@ class SerieController extends AbstractController
 
     #[Route('', name: 'add', methods: ['POST'])]
     public function add(
-        Request $request,
-        SerializerInterface $serializer,
+        Request                $request,
+        SerializerInterface    $serializer,
         EntityManagerInterface $entityManager,
-        ValidatorInterface $validator
+        ValidatorInterface     $validator
     ): Response
     {
         //Extrait le body de la requête
@@ -59,7 +59,7 @@ class SerieController extends AbstractController
         $serie = $serializer->deserialize($data, Serie::class, 'json');
 
         $errors = $validator->validate($serie);
-        if(count($errors) > 0){
+        if (count($errors) > 0) {
             //méthode une :
 //            $errorsJson = $serializer->serialize($errors, 'json');
 //            return new JsonResponse($errorsJson, Response::HTTP_BAD_REQUEST);
@@ -82,9 +82,31 @@ class SerieController extends AbstractController
     }
 
     #[Route('/{id}', name: 'update', methods: ['PUT', 'PATCH'])]
-    public function update(int $id): Response
+    public function update(
+        int                    $id,
+        Request                $request,
+        SerieRepository        $serieRepository,
+        EntityManagerInterface $entityManager): Response
     {
-        //TODO update une série en JSON
+        //j'extrait le body de la requête
+        $json = $request->getContent();
+        $data = json_decode($json, true);
+
+        $serie = $serieRepository->find($id);
+
+        //je modifie l'attribut nbLike
+        if($data['like'] == 1){
+            $serie->setNbLike($serie->getNbLike() + 1);
+        } else {
+            $serie->setNbLike($serie->getNbLike() - 1);
+        }
+
+        $entityManager->persist($serie);
+        $entityManager->flush();
+
+        //je retourne l'objet modifié
+        return $this->json($serie, Response::HTTP_OK, [], ['groups' => 'serie']);
+
     }
 
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
